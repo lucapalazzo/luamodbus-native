@@ -1,11 +1,19 @@
-modbus = require("modbus_native")
+mb = require("modbus_native")
+
+--bit = require("bit32")
+--print ( string.format ( "bit: %s", tostring(bit) ) )
+
 debug_level = 10
-mb = modbus:new ()
-mb.host = "192.168.168.40"
-mb.port = 23
-mb:readInputStatus(0x01, 0x00, 28 )
-mb:getFrame()
---mb:readHoldingRegister(0x01, 4, 0x06)
+mb.type = RTUoTCP
+mb.host = "192.168.168.46"
+mb.port = 5002
+-- print ( string.format ( "mb: %d", mb.type ) )
+
+--mb:readInputStatus(0x01, 0x00, 28 )
+frame = mb:readInputRegister(0x01, 0, 10 )
+
+--mb:getFrame()
+frame = mb:readHoldingRegister(0x01, 0, 0x06)
 --frame = mb:getFrame()
 if ( frame == nil or frame.values == nil or frame.exception ~= 0) then
   print ( "Error getting frame" );
@@ -13,12 +21,14 @@ if ( frame == nil or frame.values == nil or frame.exception ~= 0) then
   return
 end
 
-print ( "Tipo: " .. type ( frame.values ) )
+--print ( "Tipo: " .. type ( frame.values ) )
 values_string = "Numero valori " .. #frame.values
 for key, value in ipairs(frame.values) do
   values_string = values_string .. mb.packetdump ( frame.values[key] )
 end
 print ( values_string )
+mb:closeDevice()
+
 -- minutes = tonumber (string.sub (frame.values[1],1,1), 16 )-- + tonumber(string.sub (frame.values[1],2,2))
 --print ( mb.packetdump ( string.sub (frame.values[1],1,2 ) ) )
 --minutes = frame.values[1]:byte(1)*256+frame.values[1]:byte(2)
